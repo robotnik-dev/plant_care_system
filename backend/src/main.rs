@@ -3,7 +3,8 @@ mod config;
 mod db;
 mod services;
 
-#[macro_use] extern crate rocket;
+#[macro_use]
+extern crate rocket;
 
 #[get("/")]
 fn index() -> &'static str {
