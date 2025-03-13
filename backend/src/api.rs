@@ -1,2 +1,2 @@
-pub mod readings;
 pub mod config;
+pub mod readings;

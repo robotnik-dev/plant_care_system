@@ -1,7 +1,7 @@
 mod api;
 mod config;
-mod services;
 mod db;
+mod services;
 
 fn main() {
     println!("Hello, world!");
