@@ -1,4 +1,4 @@
-name: Build and publish to ghcr.io
+name: Build and Publish
 
 on:
   push:
@@ -10,14 +10,23 @@ on:
       - "v*"
 
 jobs:
-  docker_publish:
-    runs-on: "ubuntu-latest"
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose
 
+  docker-publish:
+    needs: build-and-test
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Build and publish a Docker image for ${{ github.repository }}
         uses: macbre/push-to-ghcr@v14
         with:
-          image_name: ${{ github.repository }}  # it will be lowercased internally
+          image_name: ${{ github.repository }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
