@@ -83,3 +83,4 @@ jobs:
         with:
           image_name: ${{ github.repository }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          build_arg: 'PLATFORM=linux/arm64'
