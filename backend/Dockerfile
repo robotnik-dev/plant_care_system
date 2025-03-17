@@ -1,18 +1,39 @@
-FROM rust:1.85 AS build
+FROM rust:1.85 AS planner
 
-WORKDIR /build
+RUN cargo install cargo-chef
+
+WORKDIR /app
+
+# Copy the whole project
+COPY . .
+
+# Prepare a build plan ("recipe")
+RUN cargo chef prepare --recipe-path recipe.json
+
+FROM rust:1.85 AS builder
+
+RUN cargo install cargo-chef
+
+# Copy the build plan from the previous Docker stage
+COPY --from=planner /app/recipe.json recipe.json
+
+# Build dependencies - this layer is cached as long as `recipe.json`
+# doesn't change.
+RUN cargo chef cook --recipe-path recipe.json
 
 COPY . .
+
+WORKDIR /build
 
 RUN cargo build --release; \
     objcopy --compress-debug-sections target/release/backend ./main
 
-FROM debian:bookworm-slim
+FROM debian:bookworm-slim AS runner
 
 WORKDIR /app
 
 ## copy the main binary
-COPY --from=build /build/main ./
+COPY --from=builder /build/main ./
 
 ## ensure the container listens globally
 ENV ROCKET_ADDRESS=0.0.0.0
