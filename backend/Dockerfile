@@ -4,11 +4,7 @@ WORKDIR /build
 
 COPY . .
 
-RUN --mount=type=cache,target=/build/target \
-    --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/usr/local/cargo/git \
-    set -eux; \
-    cargo build --release; \
+RUN cargo build --release; \
     objcopy --compress-debug-sections target/release/backend ./main
 
 FROM debian:bookworm-slim
