@@ -27,7 +27,6 @@ jobs:
         with:
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/${{vars.DOCKERHUB_REPOSITORY_NAME}}:${{matrix.service}}-latest
-          file: ${{ matrix.service }}/Dockerfile
           context: "{{defaultContext}}:${{ matrix.service }}"
           platforms: |
             linux/amd64
