@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  selector:
+    matchLabels:
+      app: pcs
+      tier: frontend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: pcs
+        tier: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: robotnikdev/plant-care-system:frontend-latest
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: pcs
+    tier: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
