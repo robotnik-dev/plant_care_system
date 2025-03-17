@@ -6,9 +6,6 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [ backend, frontend ]
     steps:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -22,12 +19,22 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push
+      - name: Build and push frontend
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{vars.DOCKERHUB_REPOSITORY_NAME}}:${{matrix.service}}-latest
-          context: "{{defaultContext}}:${{ matrix.service }}"
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{vars.DOCKERHUB_REPOSITORY_NAME}}:frontend-latest
+          context: "{{defaultContext}}:frontend"
+          platforms: |
+            linux/amd64
+            linux/arm64
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{vars.DOCKERHUB_REPOSITORY_NAME}}:backend-latest
+          context: "{{defaultContext}}:backend"
           platforms: |
             linux/amd64
             linux/arm64
