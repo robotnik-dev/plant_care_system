@@ -23,8 +23,6 @@ RUN cargo chef cook --recipe-path recipe.json
 
 COPY . .
 
-WORKDIR /build
-
 RUN cargo build --release; \
     objcopy --compress-debug-sections target/release/backend ./main
 
@@ -33,7 +31,7 @@ FROM debian:bookworm-slim AS runner
 WORKDIR /app
 
 ## copy the main binary
-COPY --from=builder /build/main ./
+COPY --from=builder ./main ./
 
 ## ensure the container listens globally
 ENV ROCKET_ADDRESS=0.0.0.0

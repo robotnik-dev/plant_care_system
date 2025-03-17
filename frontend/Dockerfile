@@ -23,8 +23,6 @@ RUN cargo chef cook --recipe-path recipe.json
 
 COPY . .
 
-WORKDIR /build
-
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 RUN rustup target add wasm32-unknown-unknown
 RUN cargo install --locked trunk
@@ -35,7 +33,7 @@ RUN trunk build --release
 
 FROM nginx:1.27-bookworm AS runner
 
-COPY --from=builder /build/dist /usr/share/nginx/html
+COPY --from=builder ./dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
