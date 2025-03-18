@@ -20,6 +20,7 @@ spec:
           ports:
             - protocol: TCP
               containerPort: 9000
+          imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service
