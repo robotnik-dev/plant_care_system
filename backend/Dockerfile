@@ -1,8 +1,11 @@
-FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
+FROM --platform=$BUILDPLATFORM lukemathwalker/cargo-chef:latest-rust-1 AS chef
+
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
 
 WORKDIR /app
 
-RUN cargo install sccache --version ^0.10
+RUN cargo install sccache --version ^0.10 --target $(uname -m)-unknown-linux-gnu
 
 ENV RUSTC_WRAPPER=sccache SCCACHE_DIR=/sccache
 
@@ -20,14 +23,14 @@ COPY --from=planner /app/recipe.json recipe.json
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
-    cargo chef cook --release --recipe-path recipe.json;
+    cargo chef cook --release --recipe-path recipe.json --target $(uname -m)-unknown-linux-gnu;
 
 COPY . .
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
-    cargo build --release --bin backend; \
-    objcopy --compress-debug-sections target/release/backend ./server;
+    cargo build --release --bin backend --target $(uname -m)-unknown-linux-gnu; \
+    objcopy --compress-debug-sections target/$(uname -m)-unknown-linux-gnu/release/backend ./server;
 
 FROM debian:bookworm-slim AS runner
 
