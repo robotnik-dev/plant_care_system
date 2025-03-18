@@ -29,5 +29,6 @@ jobs:
           context: "{{defaultContext}}:${{ matrix.service }}"
           platforms: |
             linux/arm64
+            linux/amd64
           cache-from: type=registry,ref=${{ vars.DOCKERHUB_USERNAME }}/${{vars.DOCKERHUB_REPOSITORY_NAME}}:buildcache
           cache-to: type=registry,ref=${{ vars.DOCKERHUB_USERNAME }}/${{vars.DOCKERHUB_REPOSITORY_NAME}}:buildcache,mode=max
