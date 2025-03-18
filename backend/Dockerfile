@@ -6,7 +6,6 @@ ARG TARGETPLATFORM
 RUN rustup target add $(uname -m)-unknown-linux-gnu
 
 RUN cargo install sccache --version ^0.10 --target=$(uname -m)-unknown-linux-gnu
-
 RUN cargo install cargo-chef --version ^0.1 --target=$(uname -m)-unknown-linux-gnu
 
 ENV RUSTC_WRAPPER=sccache SCCACHE_DIR=/sccache
@@ -35,15 +34,14 @@ COPY . .
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
+    cd backend; \
     cargo build --release --target=$(uname -m)-unknown-linux-gnu; \
-    objcopy --compress-debug-sections target/$(uname -m)-unknown-linux-gnu/release/backend ./main
+    objcopy --compress-debug-sections ../target/$(uname -m)-unknown-linux-gnu/release/backend ./main
 
 FROM builder AS runner
 
-WORKDIR /app
-
 ## copy the main binary
-COPY --from=builder app/main ./
+COPY --from=builder app/backend/main ./
 
 ## ensure the container listens globally
 ENV ROCKET_ADDRESS=0.0.0.0

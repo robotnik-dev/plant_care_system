@@ -35,12 +35,13 @@ COPY . .
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
+    cd frontend; \
     trunk build --release;
 
 FROM nginx:1.27-bookworm AS runner
 
-COPY --from=builder app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY --from=builder app/frontend/dist /usr/share/nginx/html
+COPY frontend/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 

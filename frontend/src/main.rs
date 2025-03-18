@@ -1,20 +1,26 @@
+use shared::models::reading::Reading;
 use yew::prelude::*;
 
 #[function_component]
 fn App() -> Html {
-    let counter = use_state(|| 0);
-    let onclick = {
-        let counter = counter.clone();
-        move |_| {
-            let value = *counter + 1;
-            counter.set(value);
-        }
-    };
+    let readings = [
+        Reading::new(0, 0.43),
+        Reading::new(1, 0.33),
+        Reading::new(2, 0.32),
+    ];
+
+    let readings = readings
+        .iter()
+        .map(|reading| {
+            html!(
+                <p key={reading.id}>{format!("value: {}", reading.value)}</p>
+            )
+        })
+        .collect::<Html>();
 
     html! {
         <div>
-            <button {onclick}>{ "+1" }</button>
-            <p>{ *counter }</p>
+            { readings}
         </div>
     }
 }
