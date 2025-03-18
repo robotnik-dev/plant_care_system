@@ -30,7 +30,7 @@ COPY . .
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
     cargo build --release --bin backend --target $(uname -m)-unknown-linux-gnu; \
-    objcopy --compress-debug-sections ../target/$(uname -m)-unknown-linux-gnu/release/backend ./main;
+    objcopy --compress-debug-sections target/$(uname -m)-unknown-linux-gnu/release/backend ./main;
 
 FROM debian:bookworm-slim AS runner
 
@@ -43,4 +43,4 @@ ENV ROCKET_PORT=9000
 
 EXPOSE 9000
 
-ENTRYPOINT ["./main"]
+ENTRYPOINT ["/usr/local/bin"]
