@@ -5,13 +5,7 @@ ARG BUILDPLATFORM
 
 WORKDIR /app
 
-RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-
-RUN rustup target add wasm32-unknown-unknown
-RUN rustup target add $(uname -m)-unknown-linux-gnu
-
 RUN cargo install sccache --version ^0.10 --target $(uname -m)-unknown-linux-gnu
-RUN cargo install --locked trunk --version ^0.21 --target $(uname -m)-unknown-linux-gnu
 
 ENV RUSTC_WRAPPER=sccache SCCACHE_DIR=/sccache
 
@@ -26,6 +20,15 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 FROM chef AS builder
 
 COPY --from=planner /app/recipe.json recipe.json
+
+RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+RUN rustup target add wasm32-unknown-unknown
+RUN rustup target add $(uname -m)-unknown-linux-gnu
+
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
+    cargo install --locked trunk --version ^0.21 --target $(uname -m)-unknown-linux-gnu
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
