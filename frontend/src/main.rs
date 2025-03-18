@@ -6,7 +6,7 @@ fn App() -> Html {
     let readings = [
         Reading::new(0, 0.43),
         Reading::new(1, 0.33),
-        Reading::new(2, 0.32),
+        Reading::new(2, 0.2),
     ];
 
     let readings = readings
