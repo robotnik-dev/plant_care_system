@@ -1,37 +1,49 @@
-FROM rust:1.85 AS planner
+FROM --platform=$BUILDPLATFORM rust:1.85 AS base
 
-RUN cargo install cargo-chef
+ARG BUILDPLATFORM
+ARG TARGETPLATFORM
+
+RUN rustup target add $(uname -m)-unknown-linux-gnu
+
+RUN cargo install sccache --version ^0.10 --target=$(uname -m)-unknown-linux-gnu
+
+RUN cargo install cargo-chef --version ^0.1 --target=$(uname -m)-unknown-linux-gnu
+
+ENV RUSTC_WRAPPER=sccache SCCACHE_DIR=/sccache
+
+FROM base AS planner
 
 WORKDIR /app
 
-# Copy the whole project
 COPY . .
 
-# Prepare a build plan ("recipe")
-RUN cargo chef prepare --recipe-path recipe.json
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
+    cargo chef prepare --recipe-path recipe.json
 
-FROM rust:1.85 AS builder
+FROM base AS builder
 
-RUN cargo install cargo-chef
+WORKDIR /app
 
-# Copy the build plan from the previous Docker stage
 COPY --from=planner /app/recipe.json recipe.json
 
-# Build dependencies - this layer is cached as long as `recipe.json`
-# doesn't change.
-RUN cargo chef cook --recipe-path recipe.json
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
+    cargo chef cook --release --recipe-path recipe.json
 
 COPY . .
 
-RUN cargo build --release; \
-    objcopy --compress-debug-sections target/release/backend ./main
+RUN --mount=type=cache,target=/usr/local/cargo/registry \
+    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
+    cargo build --release --target=$(uname -m)-unknown-linux-gnu; \
+    objcopy --compress-debug-sections target/$(uname -m)-unknown-linux-gnu/release/backend ./main
 
-FROM debian:bookworm-slim AS runner
+FROM builder AS runner
 
 WORKDIR /app
 
 ## copy the main binary
-COPY --from=builder ./main ./
+COPY --from=builder app/main ./
 
 ## ensure the container listens globally
 ENV ROCKET_ADDRESS=0.0.0.0
@@ -39,4 +51,4 @@ ENV ROCKET_PORT=9000
 
 EXPOSE 9000
 
-CMD ./main
+CMD ["./main"]
