@@ -5,8 +5,14 @@ const READ_INTERVAL: f32 = 1.0;
 const READ_PIN: u8 = 17;
 
 pub struct MoistureSensor {
-    pub receiver: Receiver<f64>,
     sender: Sender<f64>,
+    receiver: Receiver<f64>,
+}
+
+impl Default for MoistureSensor {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl MoistureSensor {
@@ -18,8 +24,8 @@ impl MoistureSensor {
     pub fn subscribe(&self) -> &Receiver<f64> {
         &self.receiver
     }
-    
-    pub async fn start_reading(&self) {
+
+    pub async fn start_reading(&self) -> Result<(), String> {
         let sender = self.sender.clone();
 
         tokio::task::spawn(async move {
@@ -27,10 +33,17 @@ impl MoistureSensor {
 
             loop {
                 interval.tick().await;
-                let reading = read_moisture_value(READ_PIN).unwrap();
-                let _ = sender.send(reading);
+                let Ok(reading) = read_moisture_value(READ_PIN) else {
+                    return Err::<(), std::string::String>(String::from(
+                        "Failed to read moisture pins",
+                    ));
+                };
+                if let Err(err) = sender.send(reading).map_err(|e| e.to_string()) {
+                    return Err::<(), std::string::String>(err.to_string());
+                }
             }
         });
+        Ok(())
     }
 }
 
