@@ -3,11 +3,7 @@ use yew::prelude::*;
 
 #[function_component]
 fn App() -> Html {
-    let readings = [
-        Reading::new(0, 0.43),
-        Reading::new(1, 0.33),
-        Reading::new(2, 0.26),
-    ];
+    let readings = [Reading::new(0, 0.43), Reading::new(1, 0.33)];
 
     let readings = readings
         .iter()
