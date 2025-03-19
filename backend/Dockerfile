@@ -20,19 +20,18 @@ COPY --from=planner /app/recipe.json recipe.json
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
-    cargo chef cook --release --recipe-path recipe.json;
+    cargo chef cook --release --recipe-path recipe.json
 
 COPY . .
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
-    cargo build --release --bin backend; \
-    objcopy --compress-debug-sections target/release/backend ./server;
+    cargo build --release --bin backend;
 
 FROM debian:bookworm-slim AS runner
 
 ## copy the main binary
-COPY --from=builder app/server /usr/local/bin
+COPY --from=builder app/target/release/backend /usr/local/bin
 
 ## ensure the container listens globally
 ENV ROCKET_ADDRESS=0.0.0.0
@@ -40,4 +39,4 @@ ENV ROCKET_PORT=9000
 
 EXPOSE 9000
 
-ENTRYPOINT ["/usr/local/bin/server"]
+ENTRYPOINT ["/usr/local/bin/backend"]
