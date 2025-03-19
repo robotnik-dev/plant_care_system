@@ -2,8 +2,40 @@ name: ci
 
 on: push
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
+  latest-deps:
+    name: Latest Dependencies
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    env:
+      CARGO_RESOLVER_INCOMPATIBLE_RUST_VERSIONS: allow
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update stable && rustup default stable
+      - run: cargo update --verbose
+      - run: cargo build --verbose
+      - run: cargo test --verbose
+
+  build-and-test:
+    needs: latest-deps
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        toolchain:
+          - stable
+          - beta
+          - nightly
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
+      - run: cargo build --verbose
+      - run: cargo test --verbose
+
   docker:
+    needs: build-and-test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -28,7 +60,6 @@ jobs:
           tags: ${{ vars.DOCKERHUB_USERNAME }}/${{vars.DOCKERHUB_REPOSITORY_NAME}}:${{matrix.service}}-latest
           file: ${{ matrix.service }}/Dockerfile
           platforms: |
-            linux/amd64
             linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
