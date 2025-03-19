@@ -6,6 +6,8 @@ edition = "2021"
 [dependencies]
 yew = { version = "0.21.0", features = ["csr"] }
 shared = { path = "../shared" }
+gloo-net = "0.6.0"
+wasm-bindgen-futures = "0.4.50"
 
 [profile.release]
 # less code to include into binary

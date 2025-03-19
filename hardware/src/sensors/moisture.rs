@@ -35,7 +35,7 @@ impl MoistureSensor {
                 interval.tick().await;
                 let Ok(reading) = read_moisture_value(READ_PIN) else {
                     return Err::<(), std::string::String>(String::from(
-                        "Failed to read moisture pins",
+                        "Failed to read sensor pins: moisture sensor",
                     ));
                 };
                 if let Err(err) = sender.send(reading).map_err(|e| e.to_string()) {

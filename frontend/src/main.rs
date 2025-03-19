@@ -1,23 +1,54 @@
+use gloo_net::http::Request;
 use shared::models::reading::Reading;
 use yew::prelude::*;
 
-#[function_component]
-fn App() -> Html {
-    let readings = [Reading::new(0, 0.93), Reading::new(1, 0.33)];
+#[derive(Properties, PartialEq)]
+struct ReadingListProps {
+    readings: Vec<Reading>,
+}
 
-    let readings = readings
+#[function_component(ReadingList)]
+fn reading_list(ReadingListProps { readings }: &ReadingListProps) -> Html {
+    readings
         .iter()
         .map(|reading| {
-            html!(
+            html! {
                 <p key={reading.id}>{format!("value: {}", reading.value)}</p>
-            )
+            }
         })
-        .collect::<Html>();
+        .collect()
+}
+
+#[function_component(App)]
+fn app() -> Html {
+    let readings = use_state(Vec::new);
+    {
+        let readings = readings.clone();
+        use_effect_with((), move |_| {
+            let readings = readings.clone();
+            wasm_bindgen_futures::spawn_local(async move {
+                let fetched_readings = Request::get("/api/v1/readings")
+                    .send()
+                    .await
+                    .unwrap()
+                    .json()
+                    .await
+                    .unwrap();
+                readings.set(fetched_readings);
+            });
+            || ()
+        });
+    }
+    // let readings = vec![Reading::new(0, 42.0), Reading::new(1, 69.0)];
 
     html! {
-        <div>
-            { readings}
-        </div>
+        <>
+            <h1>{ "Heading" }</h1>
+            <div>
+            <h2>{ "Readings" }</h2>
+                <ReadingList readings={(*readings).clone()} />
+            </div>
+        </>
     }
 }
 
