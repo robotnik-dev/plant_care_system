@@ -32,7 +32,9 @@ FROM debian:bookworm-slim AS runner
 
 ## copy the main binary
 COPY --from=builder app/target/release/backend ./
-COPY --from=builder app/backend/Rocket.toml ./static
+
+ENV ROCKET_ADDRESS=0.0.0.0
+ENV ROCKET_PORT=9000
 
 EXPOSE 9000
 
