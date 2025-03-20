@@ -33,7 +33,6 @@ jobs:
   #      - run: cargo test --verbose
 
   docker:
-    #    needs: build-and-test
     runs-on: ubuntu-22.04-arm
     strategy:
       matrix:
@@ -45,9 +44,6 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -58,5 +54,5 @@ jobs:
           tags: ${{ vars.DOCKERHUB_USERNAME }}/${{vars.DOCKERHUB_REPOSITORY_NAME}}:${{matrix.service}}-latest
           file: ${{ matrix.service }}/Dockerfile
           platforms: linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=${{ vars.DOCKERHUB_USERNAME }}/${{vars.DOCKERHUB_REPOSITORY_NAME}}:${{matrix.service}}-buildcache
+          cache-to: type=registry,ref=${{ vars.DOCKERHUB_USERNAME }}/${{vars.DOCKERHUB_REPOSITORY_NAME}}:${{matrix.service}}-buildcache,mode=max
