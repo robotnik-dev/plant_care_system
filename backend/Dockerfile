@@ -33,6 +33,9 @@ FROM debian:bookworm-slim AS runner
 ## copy the main binary
 COPY --from=builder app/target/release/backend /usr/local/bin
 
+ENV ROCKET_ADDRESS=10.43.3.210
+ENV ROCKET_PORT=9000
+
 EXPOSE 9000
 
-ENTRYPOINT ["/usr/local/bin/backend"]
+CMD ["/usr/local/bin/backend"]
