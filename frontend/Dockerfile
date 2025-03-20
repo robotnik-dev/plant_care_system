@@ -40,7 +40,6 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 FROM nginx:1.27-bookworm AS runner
 
 COPY --from=builder app/frontend/dist /usr/share/nginx/html
-COPY frontend/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
 
