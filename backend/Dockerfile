@@ -31,11 +31,9 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
 FROM debian:bookworm-slim AS runner
 
 ## copy the main binary
-COPY --from=builder app/target/release/backend /usr/local/bin
-
-ENV ROCKET_ADDRESS=10.43.3.210
-ENV ROCKET_PORT=9000
+COPY --from=builder app/target/release/backend ./
+COPY --from=builder /app/Rocket.toml ./static
 
 EXPOSE 9000
 
-CMD ["/usr/local/bin/backend"]
+CMD ["./backend"]
