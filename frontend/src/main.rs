@@ -2,6 +2,8 @@ use gloo_net::http::Request;
 use shared::models::reading::Reading;
 use yew::prelude::*;
 
+const API_URL: &str = "http://backend/api/v1/";
+
 #[derive(Properties, PartialEq)]
 struct ReadingListProps {
     readings: Vec<Reading>,
@@ -27,7 +29,7 @@ fn app() -> Html {
         use_effect_with((), move |_| {
             let readings = readings.clone();
             wasm_bindgen_futures::spawn_local(async move {
-                let fetched_readings = Request::get("http://10.43.20.48/api/v1/readings")
+                let fetched_readings = Request::get(format!("{API_URL}/readings").as_str())
                     .send()
                     .await
                     .unwrap()
