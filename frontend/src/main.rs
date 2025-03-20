@@ -27,7 +27,7 @@ fn app() -> Html {
         use_effect_with((), move |_| {
             let readings = readings.clone();
             wasm_bindgen_futures::spawn_local(async move {
-                let fetched_readings = Request::get("http://10.43.3.210/readings")
+                let fetched_readings = Request::get("http://10.43.3.210:9000/readings")
                     .send()
                     .await
                     .unwrap()
