@@ -27,9 +27,11 @@ kind: Service
 metadata:
   name: backend
 spec:
+  clusterIP: 10.43.3.210
   selector:
     app: pcs
     tier: backend
   ports:
     - protocol: TCP
       port: 9000
+
