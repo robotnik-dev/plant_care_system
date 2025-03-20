@@ -32,7 +32,7 @@ FROM debian:bookworm-slim AS runner
 
 ## copy the main binary
 COPY --from=builder app/target/release/backend ./
-COPY --from=builder app/Rocket.toml ./static
+COPY --from=builder app/backend/Rocket.toml ./static
 
 EXPOSE 9000
 
