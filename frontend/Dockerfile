@@ -37,10 +37,8 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     cd frontend; \
     trunk build --release;
 
-FROM nginx:1.27-bookworm AS runner
+FROM nginx:bookworm AS runner
 
 COPY --from=builder app/frontend/dist /usr/share/nginx/html
 
 EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]

@@ -17,5 +17,5 @@ fn index() -> Json<Vec<Reading>> {
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/api/v1", routes![index])
+    rocket::build().mount("/", routes![index])
 }
